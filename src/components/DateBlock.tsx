@@ -30,7 +30,9 @@ const DateBlock: React.FC<DateBlockProps> = ({ initialValue }) => {
 
   useEffect(() => {
     if (isEditing) {
-      editingRef?.current?.setHTMLUnsafe(storedValue);
+      if (editingRef?.current) {
+        editingRef.current.innerHTML = storedValue;
+      }
     }
   }, [isEditing]);
 
