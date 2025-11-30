@@ -7,7 +7,7 @@ import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 export default defineConfig({
   plugins: [
     peerDepsExternal(),
-    react(), 
+    react(),
     viteSingleFile(),
   ],
   esbuild: {

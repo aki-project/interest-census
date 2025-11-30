@@ -47,7 +47,7 @@ const EditableLabel: React.FC<EditableLabelProps> = ({ initialValue, onSave }) =
       />
     );
   }
-  
+
   const labelClasses = "";
 
   return (

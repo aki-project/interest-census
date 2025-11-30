@@ -28,4 +28,12 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    // General rules that apply to all files (including TS/TSX) can go here.
+    files: ['**/*'],
+    rules: {
+      // Forbid trailing whitespace anywhere in the codebase
+      'no-trailing-spaces': 'error',
+    },
+  },
 ])
