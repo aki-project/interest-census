@@ -163,7 +163,7 @@ const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates })
   return (
     <div
       onClick={() => setIsEditing(true)}
-      dangerouslySetInnerHTML={{__html: storedValue}}
+      dangerouslySetInnerHTML={{__html: storedValue == "" ? "-" : storedValue}}
     >
     </div>
   );

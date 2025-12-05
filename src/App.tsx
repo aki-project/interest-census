@@ -81,6 +81,9 @@ const App: React.FC = () => {
   }, []);
 
   const updateColumns = useCallback((newProps: DateFragProps[]) => {
+    if(newProps.length == 0) {
+      return;
+    }
     setColumns(previousColumns => {
       const oldMin = previousColumns.map((col) => parseInt(col.id)).reduce((x, y) => x < y ? x : y)
       const oldMax = previousColumns.map((col) => parseInt(col.id)).reduce((x, y) => x < y ? y : x)
@@ -126,8 +129,8 @@ const App: React.FC = () => {
           <th></th>
           {columns.map((col) => (
             <th key={col.id}>
-              <div style = {{transform: "rotate(-70deg)"}}>
-                {col.id}
+              <div style = {{transform: "rotate(-70deg)", width: "10px"}}>
+                {col.id.substring(2, 4)}
               </div>
             </th>
           ))}
@@ -144,12 +147,13 @@ const App: React.FC = () => {
               <button
                 onClick={() => handleRemoveRow(row.id)}
                 aria-label={`Remove row ${row.label}`}
+                className="remove-row-btn"
               >
                 X
               </button>
             </td>
             <td>
-              <div style={{ width: '400px' }}>
+              <div style={{ width: '200px' }}>
                 <DateBlock
                 initialValue="2025"
                 registerNewDates={(dateFragProps) => registerFrags(row.id, dateFragProps)}
