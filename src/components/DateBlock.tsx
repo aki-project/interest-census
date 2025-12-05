@@ -12,6 +12,42 @@ export interface DateFragProps {
   isItalic: boolean;
 }
 
+export const fragsToHtml = (frags: DateFragProps[]) : string => {
+  if (frags.length == 0) return "";
+
+  const sortedFrags = [...frags].sort((a, b) => a.year - b.year);
+  const parts: string[] = [];
+
+  let i = 0;
+  const len = sortedFrags.length;
+  while (i < len) {
+    const startFrag = sortedFrags[i];
+    let j = i;
+
+    while (
+      j + 1 < len &&
+      sortedFrags[j + 1].year === sortedFrags[j].year + 1 &&
+      sortedFrags[j + 1].isBold === startFrag.isBold &&
+      sortedFrags[j + 1].isItalic === startFrag.isItalic
+    ) {
+      j++;
+    }
+
+    const endYear = sortedFrags[j].year;
+    const text = i === j ? `${startFrag.year}` : `${startFrag.year}-${endYear}`;
+
+    let wrapped = text;
+    if (startFrag.isItalic) wrapped = `<i>${wrapped}</i>`;
+    if (startFrag.isBold) wrapped = `<b>${wrapped}</b>`;
+
+    parts.push(wrapped);
+
+    i = j + 1;
+  }
+
+  return parts.join(', ');
+}
+
 const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [storedValue, setStoredValue] = useState(initialValue);
@@ -25,12 +61,15 @@ const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates })
         ALLOWED_TAGS: ['b', 'i'],
         ALLOWED_ATTR: [],
       })
-    console.log(parseYearString(clean));
-    registerNewDates(parseYearString(clean));
-    setStoredValue(clean);
+    const dateFrags = htmlToFrags(clean);
+    console.log(dateFrags);
+    // console.log(registerNewDates);
+    registerNewDates?.(dateFrags);
+    const reextracted = fragsToHtml(dateFrags);
+    setStoredValue(reextracted);
   }
 
-  const parseYearString = (str: string) : DateFragProps[] => {
+  const htmlToFrags = (str: string) : DateFragProps[] => {
     const results = [];
     let isBold = false;
     let isItalic = false;
@@ -79,16 +118,6 @@ const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates })
     }
     return results;
   }
-
-  // keep a running tag of whether the current index is bold or not.
-  // triple: b (boolean), i (boolean), datestring.
-  // const dateFragmenter = (rawDateFragments: string[]): DateFragProps[] => {
-  //   let currentlyBold = false;
-  //   let currentlyItalic = false;
-  //   for (const rawDateFragment of rawDateFragments) {
-
-  //   }
-  // }
 
   const handleSave = () => {
     if (newValue.trim() === '') {

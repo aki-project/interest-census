@@ -11,7 +11,7 @@ test('edit and re-edit plain text with enter / blur', async () => {
   await userEvent.click(screen.getByText('2001'))
   const editable = container.querySelector('[contenteditable="true"]')
   expect(editable).toBeTruthy()
-  expect(editable).toHaveTextContent('2001')
+  expect(editable).toHaveTextContent(/^2001$/)
 
   // Simulate edit with enter
   editable.innerHTML = '2002'
@@ -24,7 +24,7 @@ test('edit and re-edit plain text with enter / blur', async () => {
   await userEvent.click(screen.getByText('2002'))
   const editable2 = container.querySelector('[contenteditable="true"]')
   expect(editable2).toBeTruthy()
-  expect(editable2).toHaveTextContent('2002')
+  expect(editable2).toHaveTextContent(/^2002$/)
 
   // Simulate edit with blur
   editable.innerHTML = '2003'
@@ -41,28 +41,28 @@ test('edit and re-edit rich text with enter / blur', async () => {
   await userEvent.click(screen.getByText('2001'))
   const editable = container.querySelector('[contenteditable="true"]')
   expect(editable).toBeTruthy()
-  expect(editable).toHaveTextContent('2001')
+  expect(editable).toHaveTextContent(/^2001$/)
 
   // Simulate edit with enter
-  editable.innerHTML = '2002 <b>apples</b> test'
+  editable.innerHTML = '2002 <b>apples</b> test 2003'
   fireEvent.input(editable)
   fireEvent.keyDown(editable, { key: 'Enter', code: 'Enter' })
   expect(editable).toBeTruthy()
-  expect(editable).toHaveTextContent('2002 apples test')
+  expect(editable).toHaveTextContent(/^2002-2003$/)
   expect(container.querySelector('[contenteditable="true"]')).toBeNull()
 
   // Enter edit mode
-  await userEvent.click(screen.getByText('2002', {exact: false}))
+  await userEvent.click(screen.getByText('2002-2003', {exact: false}))
   const editable2 = container.querySelector('[contenteditable="true"]')
   expect(editable2).toBeTruthy()
-  expect(editable2).toHaveTextContent('2002 apples test')
+  expect(editable2).toHaveTextContent(/^2002-2003$/)
 
   // Simulate edit with blur
   fireEvent.input(editable2)
   fireEvent.blur(editable2)
   expect(editable2).toBeTruthy()
-  expect(editable2).toHaveTextContent('2002 apples test')
-  expect(editable2).toContainHTML('2002 <b>apples</b> test')
+  expect(editable2).toHaveTextContent(/^2002-2003$/)
+  expect(editable2).toContainHTML('2002-2003')
   expect(container.querySelector('[contenteditable="true"]')).toBeNull()
 })
 

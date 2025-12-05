@@ -98,9 +98,8 @@ const App: React.FC = () => {
 
   const registerFrags = useCallback((rowLabel: string, newProps: DateFragProps[]) => {
     updateColumns(newProps);
-    const newRowDateProps = [ ... rowDateProps ]
     let rowLabelFound = false;
-    newRowDateProps.map(
+    const newRowDateProps = rowDateProps.map(
       (row) => {
         if (row.label == rowLabel) {
           rowLabelFound = true;
@@ -118,6 +117,8 @@ const App: React.FC = () => {
   }, [rowDateProps])
 
   return (
+    <>
+    <h1>Text Interest Census</h1>
     <table>
       <thead>
         <tr>
@@ -151,7 +152,7 @@ const App: React.FC = () => {
               <div style={{ width: '400px' }}>
                 <DateBlock
                 initialValue="2025"
-                registerNewDates={(newProps) => registerFrags(row.id, newProps)}
+                registerNewDates={(dateFragProps) => registerFrags(row.id, dateFragProps)}
                 />
               </div>
             </td>
@@ -173,6 +174,7 @@ const App: React.FC = () => {
         </tr>
       </tbody>
     </table>
+    </>
   )
 }
 
