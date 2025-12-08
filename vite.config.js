@@ -6,9 +6,9 @@ import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    peerDepsExternal(),
+    // peerDepsExternal(),
     react(),
-    viteSingleFile(),
+    viteSingleFile()
   ],
   esbuild: {
     minifyIdentifiers: false,
@@ -17,11 +17,14 @@ export default defineConfig({
   minify: 'esbuild',
   build: {
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime', 'react-dom', 'react-dom/client'], // Mark React and ReactDOM as external
+      external: [
+        'react', 
+        'react-dom', 
+      ],
       output: {
         paths: {
-          react: 'https://unpkg.com/react@^18/umd/react.development.js',
-          'react-dom': 'https://unpkg.com/react-dom@^18/umd/react-dom.development.js'
+          react: "https://esm.sh/react@19.2.1",
+          'react-dom': 'https://esm.sh/react-dom@19.2.1'
         }
       }
     },
