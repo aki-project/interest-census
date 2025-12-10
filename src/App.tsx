@@ -40,18 +40,22 @@ const getColor = (interestStrength: number): string => {
 
 const App: React.FC = () => {
   const [rows, setRows] = useState<Row[]>([
-    { id: crypto.randomUUID(), label: 'Label 1' },
-    { id: crypto.randomUUID(), label: 'Label 2' },
+    { id: "initial-label-1", label: 'Label 1' },
+    { id: "initial-label-2", label: 'Label 2' },
   ]);
 
   const [columns, setColumns] = useState<Column[]>([
     { id: '2023', label: '2023' },
     { id: '2024', label: '2024' },
+    { id: '2025', label: '2025' },
   ])
 
-  const [rowDateProps, setRowDateProps] = useState<RowDateProp[]>([]);
+  const [rowDateProps, setRowDateProps] = useState<RowDateProp[]>([
+    { label: "initial-label-1", props: [{ year: 2025, isBold: false, isItalic: false }] },
+    { label: "initial-label-2", props: [{ year: 2025, isBold: false, isItalic: false }] },
+  ]);
 
-  // map from row_col keys to interest strength
+  // Computed map from row_col keys to interest strength
   const colorState = useMemo(() => {
     const newState : {[key: string]: number} = {}
     rowDateProps.forEach((rowDateProp) => {
@@ -64,12 +68,14 @@ const App: React.FC = () => {
   }, [columns, rows, rowDateProps])
 
   const handleAddRow = useCallback(() => {
+    const newRowId = crypto.randomUUID();
     const newRow: Row = {
-      id: crypto.randomUUID(),
+      id: newRowId,
       label: `New Label`,
     };
     setRows(prevRows => [...prevRows, newRow]);
-  }, []);
+    registerFrags(newRowId, [{ year: 2025, isBold: false, isItalic: false }] );
+  }, [rows, rowDateProps]);
 
   const handleRemoveRow = useCallback((rowId: string) => {
     setRows(prevRows => prevRows.filter(row => row.id !== rowId));
@@ -121,7 +127,7 @@ const App: React.FC = () => {
 
   return (
     <>
-    <h1>Text Interest Census</h1>
+    <h1>Interest Tracker</h1>
     <table>
       <thead>
         <tr>
