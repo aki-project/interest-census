@@ -7,13 +7,15 @@
 
 .remove-row-btn {
   padding: 2px 6px;
-  font-size: 12px;
-  width: 28px;
-  height: 24px;
+  font-size: 9px;
+  /* width: 28px;
+  height: 24px; */
+  color: grey;
   line-height: 20px;
   border-radius: 4px;
   cursor: pointer;
 }
 .remove-row-btn:hover {
   filter: brightness(0.95);
+  color: black;
 }

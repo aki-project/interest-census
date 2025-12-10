@@ -132,7 +132,6 @@ const App: React.FC = () => {
       <thead>
         <tr>
           <th>header</th>
-          <th></th>
           {columns.map((col) => (
             <th key={col.id}>
               <div style = {{transform: "rotate(-70deg)", width: "10px"}}>
@@ -140,16 +139,18 @@ const App: React.FC = () => {
               </div>
             </th>
           ))}
+          <th></th>
         </tr>
       </thead>
       <tbody>
         {rows.map((row) => (
           <tr key={row.id}>
-            <td style={{ display: "flex" }}>
+            <td style={{ display: "flex" }} className="interest-label">
               <EditableLabel
                 initialValue={row.label}
                 onSave={(newLabel) => handleUpdateRowLabel(row.id, newLabel)}
               />
+              <div style={{ width: '5px' }}></div>
               <button
                 onClick={() => handleRemoveRow(row.id)}
                 aria-label={`Remove row ${row.label}`}
@@ -157,14 +158,6 @@ const App: React.FC = () => {
               >
                 X
               </button>
-            </td>
-            <td>
-              <div style={{ width: '200px' }}>
-                <DateBlock
-                initialValue="2025"
-                registerNewDates={(dateFragProps) => registerFrags(row.id, dateFragProps)}
-                />
-              </div>
             </td>
             {columns.map((col) => (
               <td
@@ -175,6 +168,14 @@ const App: React.FC = () => {
               }}>
               </td>
             ))}
+            <td>
+              <div style={{ width: '200px' }}>
+                <DateBlock
+                initialValue="2025"
+                registerNewDates={(dateFragProps) => registerFrags(row.id, dateFragProps)}
+                />
+              </div>
+            </td>
           </tr>
         ))}
         <tr>
