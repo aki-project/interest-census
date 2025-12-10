@@ -19,3 +19,7 @@
   filter: brightness(0.95);
   color: black;
 }
+
+.trim-time-dates-button {
+  padding: 4px;
+}

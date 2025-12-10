@@ -77,6 +77,22 @@ const App: React.FC = () => {
     registerFrags(newRowId, [{ year: 2025, isBold: false, isItalic: false }] );
   }, [rows, rowDateProps]);
 
+  const handleTrimDates = useCallback(() => {
+    setColumns(prevColumns => {
+      const minYear = rowDateProps.map(
+        (row) => row.props.map(
+          (dateFragProp) => dateFragProp.year
+        )
+      ).flat().reduce((x, y) => x < y ? x : y);
+      const maxYear = rowDateProps.map(
+        (row) => row.props.map(
+          (dateFragProp) => dateFragProp.year
+        )
+      ).flat().reduce((x, y) => x < y ? y : x);
+      return prevColumns.filter(col => parseInt(col.id) >= minYear && parseInt(col.id) <= maxYear);
+    })
+  }, [columns]);
+
   const handleRemoveRow = useCallback((rowId: string) => {
     setRows(prevRows => prevRows.filter(row => row.id !== rowId));
   }, []);
@@ -139,7 +155,11 @@ const App: React.FC = () => {
               </div>
             </th>
           ))}
-          <th></th>
+          <th>
+            <button onClick={handleTrimDates} className="trim-time-dates-button">
+              Trim Dates
+            </button>
+          </th>
         </tr>
       </thead>
       <tbody>
