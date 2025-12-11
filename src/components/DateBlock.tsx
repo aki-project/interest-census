@@ -4,6 +4,10 @@ import DOMPurify from 'isomorphic-dompurify';
 interface DateBlockProps {
   initialValue: string;
   registerNewDates: (newValue: DateFragProps[]) => void;
+  storedValue: string;
+  setStoredValue: (val: string) => void;
+  newValue: string;
+  setNewValue: (val: string) => void;
 }
 
 export interface DateFragProps {
@@ -12,7 +16,7 @@ export interface DateFragProps {
   isItalic: boolean;
 }
 
-export const fragsToHtml = (frags: DateFragProps[]) : string => {
+export const fragsToHtml = (frags: DateFragProps[]): string => {
   if (frags.length == 0) return "";
 
   const sortedFrags = [...frags].sort((a, b) => a.year - b.year);
@@ -48,13 +52,8 @@ export const fragsToHtml = (frags: DateFragProps[]) : string => {
   return parts.join(', ');
 }
 
-const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates }) => {
+const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates, storedValue, setStoredValue, newValue, setNewValue }) => {
   const [isEditing, setIsEditing] = useState(false);
-  // previously stored value before editing
-  const [storedValue, setStoredValue] = useState(initialValue);
-  // value of what the user is currently editing
-  const [newValue, setNewValue] = useState(initialValue);
-  // dom node of underlying editable div if editing
   const editingRef = useRef<HTMLDivElement>(null);
 
   const setAndSanitizeStoredValue = (unsanitizedHTML: string) => {
@@ -72,7 +71,7 @@ const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates })
     setStoredValue(reextracted);
   }
 
-  const htmlToFrags = (str: string) : DateFragProps[] => {
+  const htmlToFrags = (str: string): DateFragProps[] => {
     const results = [];
     let isBold = false;
     let isItalic = false;
@@ -166,7 +165,7 @@ const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates })
   return (
     <div
       onClick={() => setIsEditing(true)}
-      dangerouslySetInnerHTML={{__html: storedValue == "" ? "-" : storedValue}}
+      dangerouslySetInnerHTML={{ __html: storedValue == "" ? "-" : storedValue }}
     >
     </div>
   );

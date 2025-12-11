@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import './App.css';
-import DateBlock, { DateFragProps } from './components/DateBlock';
+import DateBlock, { DateFragProps, fragsToHtml } from './components/DateBlock';
 import EditableLabel from './components/EditableLabel';
 
 interface Row {
@@ -208,6 +208,7 @@ const App: React.FC = () => {
               columns={columns}
               registerFrags={registerFrags}
               colorState={colorState}
+              initialValue="2025"
             />
           </tr>
         ))}
@@ -222,9 +223,84 @@ interface FusedDateSelectorProps {
   columns: Column[];
   registerFrags: (rowLabel: string, newProps: DateFragProps[]) => void;
   colorState: { [key: string]: number };
+  initialValue: string;
 }
 
-const FusedDateSelector: React.FC<FusedDateSelectorProps> = ({ row, columns, registerFrags, colorState }) => {
+const FusedDateSelector: React.FC<FusedDateSelectorProps> = ({ row, columns, registerFrags, colorState, initialValue }) => {
+  // previously stored value before editing
+  const [storedValue, setStoredValue] = useState(initialValue);
+  // value of what the user is currently editing
+  const [newValue, setNewValue] = useState(initialValue);
+
+  const handleCellClick = (colId: string) => {
+    const currentStrength = colorState[`${row.id}_${colId}`];
+    const year = parseInt(colId);
+
+    // Parse current storedValue HTML back into DateFragProps
+    const htmlToFrags = (html: string): DateFragProps[] => {
+      const results: DateFragProps[] = [];
+      let isBold = false;
+      let isItalic = false;
+
+      const regex = /(<b>)|(<\/b>)|(<i>)|(<\/i>)|(\d{4})(\-(\d{4}))?/g;
+      let match;
+      while ((match = regex.exec(html)) !== null) {
+        if (match[1]) {
+          isBold = true;
+        } else if (match[2]) {
+          isBold = false;
+        } else if (match[3]) {
+          isItalic = true;
+        } else if (match[4]) {
+          isItalic = false;
+        } else if (match[5] && match[6]) {
+          // Year range: match[5] is start, match[7] is end
+          const startYear = parseInt(match[5]);
+          const endYear = parseInt(match[7]);
+          for (let y = startYear; y <= endYear; y++) {
+            results.push({ year: y, isBold, isItalic });
+          }
+        } else if (match[5]) {
+          // Single year
+          const singleYear = parseInt(match[5]);
+          results.push({ year: singleYear, isBold, isItalic });
+        }
+      }
+      return results;
+    };
+
+    // Get all frags from current storedValue
+    let allFrags = htmlToFrags(storedValue);
+
+    // Determine next state and update frags
+    let nextState: 'none' | 'light' | 'medium' | 'heavy';
+    if (currentStrength === undefined) {
+      nextState = 'light';
+    } else if (currentStrength === 1) {
+      nextState = 'medium';
+    } else if (currentStrength === 2) {
+      nextState = 'heavy';
+    } else {
+      nextState = 'none';
+    }
+
+    // Update allFrags: remove current year and add new formatting if not 'none'
+    allFrags = allFrags.filter((frag) => frag.year !== year);
+
+    if (nextState !== 'none') {
+      const isBold = nextState === 'heavy';
+      const isItalic = nextState === 'light';
+      allFrags.push({ year, isBold, isItalic });
+    }
+
+    // Regenerate HTML from updated frags using fragsToHtml
+    const updatedHtml = fragsToHtml(allFrags);
+    setStoredValue(updatedHtml);
+
+    // Register the new frags with the parent App
+    registerFrags(row.id, allFrags);
+  };
+
   // series of table cells representing interest-year intersections followed by date selector
   return (
     <>
@@ -236,7 +312,7 @@ const FusedDateSelector: React.FC<FusedDateSelectorProps> = ({ row, columns, reg
         backgroundColor: getColor(colorState[`${row.id}_${col.id}`])
       }}
       className="interest-cell"
-      onClick={() => alert("hi")}>
+      onClick={() => handleCellClick(col.id)}>
       </td>
     ))}
     <td>
@@ -244,6 +320,10 @@ const FusedDateSelector: React.FC<FusedDateSelectorProps> = ({ row, columns, reg
         <DateBlock
         initialValue="2025"
         registerNewDates={(dateFragProps) => registerFrags(row.id, dateFragProps)}
+        storedValue={storedValue}
+        setStoredValue={setStoredValue}
+        newValue={newValue}
+        setNewValue={setNewValue}
         />
       </div>
     </td>
