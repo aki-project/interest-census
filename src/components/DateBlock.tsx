@@ -50,8 +50,11 @@ export const fragsToHtml = (frags: DateFragProps[]) : string => {
 
 const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates }) => {
   const [isEditing, setIsEditing] = useState(false);
+  // previously stored value before editing
   const [storedValue, setStoredValue] = useState(initialValue);
+  // value of what the user is currently editing
   const [newValue, setNewValue] = useState(initialValue);
+  // dom node of underlying editable div if editing
   const editingRef = useRef<HTMLDivElement>(null);
 
   const setAndSanitizeStoredValue = (unsanitizedHTML: string) => {

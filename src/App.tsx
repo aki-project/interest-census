@@ -203,33 +203,50 @@ const App: React.FC = () => {
                 X
               </button>
             </td>
-            {columns.map((col) => (
-              <td
-              key={col.id}
-              style={{
-                width: "fit-content",
-                backgroundColor: getColor(colorState[`${row.id}_${col.id}`])
-              }}
-              className="interest-cell">
-              </td>
-            ))}
-            <td>
-              <div style={{ width: '200px' }}>
-                <DateBlock
-                initialValue="2025"
-                registerNewDates={(dateFragProps) => registerFrags(row.id, dateFragProps)}
-                />
-              </div>
-            </td>
+            <FusedDateSelector
+              row={row}
+              columns={columns}
+              registerFrags={registerFrags}
+              colorState={colorState}
+            />
           </tr>
         ))}
-        {/* <tr>
-          <td>
-            <button onClick={handleAddRow}>Add Row</button>
-          </td>
-        </tr> */}
       </tbody>
     </table>
+    </>
+  )
+}
+
+interface FusedDateSelectorProps {
+  row: Row;
+  columns: Column[];
+  registerFrags: (rowLabel: string, newProps: DateFragProps[]) => void;
+  colorState: { [key: string]: number };
+}
+
+const FusedDateSelector: React.FC<FusedDateSelectorProps> = ({ row, columns, registerFrags, colorState }) => {
+  // series of table cells representing interest-year intersections followed by date selector
+  return (
+    <>
+    {columns.map((col) => (
+      <td
+      key={col.id}
+      style={{
+        width: "fit-content",
+        backgroundColor: getColor(colorState[`${row.id}_${col.id}`])
+      }}
+      className="interest-cell"
+      onClick={() => alert("hi")}>
+      </td>
+    ))}
+    <td>
+      <div style={{ width: '200px' }}>
+        <DateBlock
+        initialValue="2025"
+        registerNewDates={(dateFragProps) => registerFrags(row.id, dateFragProps)}
+        />
+      </div>
+    </td>
     </>
   )
 }
