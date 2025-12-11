@@ -23,11 +23,31 @@ interface RowDateProp {
   props: DateFragProps[];
 }
 
+const pureColor = 0x0000ff;
+const pureColorRef = "#0x0000ff";
+const pureWhite = 0xffffff;
+
+const reduceColor = (baseColor: number, factor: number): number => {
+  const r = (baseColor & 0xff0000) >> 16;
+  const g = (baseColor & 0x00ff00) >> 8;
+  const b = baseColor & 0x0000ff;
+  return (Math.floor(r / factor) << 16) 
+      + (Math.floor(g / factor) << 8) 
+      + (Math.floor(b / factor));
+}
+
+const refColorMap : ColorMap = {
+  0: "#ffffff",
+  1: "#CCCCDD",
+  2: "#9999B2",
+  3: "#666699",
+}
+
 const colorMap : ColorMap = {
-  0: "#FFFFFF",
-  1: "#BBBBDD",
-  2: "#8888BB",
-  3: "#444499",
+  0: "#" + (pureColor.toString(16)),
+  1: "#" + (0xcccccc + reduceColor(pureColor, 15)).toString(16),
+  2: "#" + (0x999999 + reduceColor(pureColor, 10)).toString(16),
+  3: "#" + (0x666666 + reduceColor(pureColor, 5)).toString(16),
 }
 
 const getColor = (interestStrength: number): string => {
@@ -144,13 +164,17 @@ const App: React.FC = () => {
   return (
     <>
     <h1>Interest Tracker</h1>
-    <table>
+    <table className="full-table">
       <thead>
         <tr>
-          <th>header</th>
+          <th>
+          <td>
+            <button onClick={handleAddRow}>Add Row</button>
+          </td>
+          </th>
           {columns.map((col) => (
             <th key={col.id}>
-              <div style = {{transform: "rotate(-70deg)", width: "10px"}}>
+              <div style = {{transform: "rotate(-70deg)", width: "10px", fontSize: "12px"}}>
                 {col.id.substring(2, 4)}
               </div>
             </th>
@@ -164,7 +188,7 @@ const App: React.FC = () => {
       </thead>
       <tbody>
         {rows.map((row) => (
-          <tr key={row.id}>
+          <tr key={row.id} className="interest-row">
             <td style={{ display: "flex" }} className="interest-label">
               <EditableLabel
                 initialValue={row.label}
@@ -185,7 +209,8 @@ const App: React.FC = () => {
               style={{
                 width: "fit-content",
                 backgroundColor: getColor(colorState[`${row.id}_${col.id}`])
-              }}>
+              }}
+              className="interest-cell">
               </td>
             ))}
             <td>
@@ -198,11 +223,11 @@ const App: React.FC = () => {
             </td>
           </tr>
         ))}
-        <tr>
+        {/* <tr>
           <td>
             <button onClick={handleAddRow}>Add Row</button>
           </td>
-        </tr>
+        </tr> */}
       </tbody>
     </table>
     </>

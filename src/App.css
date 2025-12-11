@@ -23,3 +23,26 @@
 .trim-time-dates-button {
   padding: 4px;
 }
+
+button {
+  padding: 4px;
+}
+
+
+.interest-cell {
+  padding: 0;
+}
+
+.full-table {
+  /* border-collapse: collapse; */
+  /* border-collapse: separate; */
+  /* border-collapse: unset; */
+  border-spacing: 0px 1px;
+  /* border-color: black; */
+  background: #c0c0c0;
+}
+
+tr {
+  background: white;
+  border-bottom: 3px solid black;
+}
