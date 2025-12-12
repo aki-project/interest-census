@@ -1,11 +1,29 @@
 import { expect, test } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import DateBlock from './DateBlock'
-import React from 'react'
+import React, { useState } from 'react';
+
+test.beforeEach(cleanup)
+
+const DateBlockShell = ({ initialValue }) => {
+  const [storedValue, setStoredValue] = useState(initialValue);
+  const [newValue, setNewValue] = useState(initialValue);
+
+  return (
+    <>
+    <DateBlock
+      storedValue={storedValue}
+      setStoredValue={setStoredValue}
+      newValue={newValue}
+      setNewValue={setNewValue}
+    />
+    </>
+  )
+}
 
 test('edit and re-edit plain text with enter / blur', async () => {
-  const { container } = render(<DateBlock initialValue="2001" />)
+  const { container } = render(<DateBlockShell initialValue="2001" />)
 
   // Enter edit mode
   await userEvent.click(screen.getByText('2001'))
@@ -35,7 +53,7 @@ test('edit and re-edit plain text with enter / blur', async () => {
 })
 
 test('edit and re-edit rich text with enter / blur', async () => {
-  const { container } = render(<DateBlock initialValue="2001" />)
+  const { container } = render(<DateBlockShell initialValue="2001" />)
 
   // Enter edit mode
   await userEvent.click(screen.getByText('2001'))
@@ -67,7 +85,7 @@ test('edit and re-edit rich text with enter / blur', async () => {
 })
 
 test('test empty and esc reversion', async () => {
-  const { container } = render(<DateBlock initialValue="1999" />)
+  const { container } = render(<DateBlockShell initialValue="1999" />)
 
   // Empty string reversion
   await userEvent.click(screen.getByText('1999'))

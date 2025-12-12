@@ -23,6 +23,7 @@ interface RowDateProp {
   props: DateFragProps[];
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const pureColor = 0x0000ff;
 const pureColorRef = "#0x0000ff";
 const pureWhite = 0xffffff;
@@ -31,8 +32,8 @@ const reduceColor = (baseColor: number, factor: number): number => {
   const r = (baseColor & 0xff0000) >> 16;
   const g = (baseColor & 0x00ff00) >> 8;
   const b = baseColor & 0x0000ff;
-  return (Math.floor(r / factor) << 16) 
-      + (Math.floor(g / factor) << 8) 
+  return (Math.floor(r / factor) << 16)
+      + (Math.floor(g / factor) << 8)
       + (Math.floor(b / factor));
 }
 
@@ -57,6 +58,7 @@ const getColor = (interestStrength: number): string => {
     return colorMap[interestStrength];
   }
 }
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 const App: React.FC = () => {
   const [rows, setRows] = useState<Row[]>([
@@ -168,12 +170,10 @@ const App: React.FC = () => {
       <thead>
         <tr>
           <th>
-          <td>
             <button onClick={handleAddRow}>Add Row</button>
-          </td>
           </th>
           {columns.map((col) => (
-            <th key={col.id}>
+            <th key={col.id} className="year-header-cell">
               <div style = {{transform: "rotate(-70deg)", width: "10px", fontSize: "12px"}}>
                 {col.id.substring(2, 4)}
               </div>
@@ -296,6 +296,7 @@ const FusedDateSelector: React.FC<FusedDateSelectorProps> = ({ row, columns, reg
     // Regenerate HTML from updated frags using fragsToHtml
     const updatedHtml = fragsToHtml(allFrags);
     setStoredValue(updatedHtml);
+    setNewValue(updatedHtml);
 
     // Register the new frags with the parent App
     registerFrags(row.id, allFrags);
@@ -318,7 +319,6 @@ const FusedDateSelector: React.FC<FusedDateSelectorProps> = ({ row, columns, reg
     <td>
       <div style={{ width: '200px' }}>
         <DateBlock
-        initialValue="2025"
         registerNewDates={(dateFragProps) => registerFrags(row.id, dateFragProps)}
         storedValue={storedValue}
         setStoredValue={setStoredValue}

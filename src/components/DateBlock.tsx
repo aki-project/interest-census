@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import DOMPurify from 'isomorphic-dompurify';
 
 interface DateBlockProps {
-  initialValue: string;
   registerNewDates: (newValue: DateFragProps[]) => void;
   storedValue: string;
   setStoredValue: (val: string) => void;
@@ -52,7 +51,7 @@ export const fragsToHtml = (frags: DateFragProps[]): string => {
   return parts.join(', ');
 }
 
-const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates, storedValue, setStoredValue, newValue, setNewValue }) => {
+const DateBlock: React.FC<DateBlockProps> = ({ registerNewDates, storedValue, setStoredValue, newValue, setNewValue }) => {
   const [isEditing, setIsEditing] = useState(false);
   const editingRef = useRef<HTMLDivElement>(null);
 
@@ -65,7 +64,6 @@ const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates, s
       })
     const dateFrags = htmlToFrags(clean);
     console.log(dateFrags);
-    // console.log(registerNewDates);
     registerNewDates?.(dateFrags);
     const reextracted = fragsToHtml(dateFrags);
     setStoredValue(reextracted);
@@ -145,7 +143,7 @@ const DateBlock: React.FC<DateBlockProps> = ({ initialValue, registerNewDates, s
         editingRef.current.innerHTML = storedValue;
       }
     }
-  }, [isEditing]);
+  }, [isEditing, storedValue]);
 
   if (isEditing) {
     return (
