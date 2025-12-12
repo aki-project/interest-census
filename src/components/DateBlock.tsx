@@ -164,6 +164,7 @@ const DateBlock: React.FC<DateBlockProps> = ({ registerNewDates, storedValue, se
     <div
       onClick={() => setIsEditing(true)}
       dangerouslySetInnerHTML={{ __html: storedValue == "" ? "-" : storedValue }}
+      style={{ overflow: 'hidden', paddingLeft: '12px' }}
     >
     </div>
   );

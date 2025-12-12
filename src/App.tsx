@@ -169,7 +169,7 @@ const App: React.FC = () => {
     <table className="full-table">
       <thead>
         <tr>
-          <th>
+          <th style={{minWidth: "200px"}}>
             <button onClick={handleAddRow}>Add Row</button>
           </th>
           {columns.map((col) => (
@@ -181,7 +181,7 @@ const App: React.FC = () => {
           ))}
           <th>
             <button onClick={handleTrimDates} className="trim-time-dates-button">
-              Trim Dates
+              ← Trim Dates
             </button>
           </th>
         </tr>
@@ -317,7 +317,7 @@ const FusedDateSelector: React.FC<FusedDateSelectorProps> = ({ row, columns, reg
       </td>
     ))}
     <td>
-      <div style={{ width: '200px' }}>
+      <div style={{ width: '200px', whiteSpace: 'nowrap'}}>
         <DateBlock
         registerNewDates={(dateFragProps) => registerFrags(row.id, dateFragProps)}
         storedValue={storedValue}
