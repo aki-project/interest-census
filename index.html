@@ -10681,8 +10681,8 @@ const DOMPurify = /* @__PURE__ */ getDefaultExportFromCjs(browserExports), frags
     startFrag.isItalic && (wrapped = `<i>${wrapped}</i>`), startFrag.isBold && (wrapped = `<b>${wrapped}</b>`), parts.push(wrapped), i = j + 1;
   }
   return parts.join(", ");
-}, DateBlock = ({ initialValue, registerNewDates }) => {
-  const [isEditing, setIsEditing] = useState(!1), [storedValue, setStoredValue] = useState(initialValue), [newValue, setNewValue] = useState(initialValue), editingRef = useRef(null), setAndSanitizeStoredValue = (unsanitizedHTML) => {
+}, DateBlock = ({ registerNewDates, storedValue, setStoredValue, newValue, setNewValue }) => {
+  const [isEditing, setIsEditing] = useState(!1), editingRef = useRef(null), setAndSanitizeStoredValue = (unsanitizedHTML) => {
     const clean = DOMPurify.sanitize(
       unsanitizedHTML,
       {
@@ -10738,7 +10738,7 @@ const DOMPurify = /* @__PURE__ */ getDefaultExportFromCjs(browserExports), frags
   };
   return useEffect(() => {
     isEditing && editingRef?.current && (editingRef.current.innerHTML = storedValue);
-  }, [isEditing]), isEditing ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+  }, [isEditing, storedValue]), isEditing ? /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
       contentEditable: "true",
@@ -10753,7 +10753,8 @@ const DOMPurify = /* @__PURE__ */ getDefaultExportFromCjs(browserExports), frags
     "div",
     {
       onClick: () => setIsEditing(!0),
-      dangerouslySetInnerHTML: { __html: storedValue == "" ? "-" : storedValue }
+      dangerouslySetInnerHTML: { __html: storedValue == "" ? "-" : storedValue },
+      style: { overflow: "hidden", paddingLeft: "12px" }
     }
   );
 }, EditableLabel = ({ initialValue, onSave }) => {
@@ -10783,19 +10784,26 @@ const DOMPurify = /* @__PURE__ */ getDefaultExportFromCjs(browserExports), frags
       children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "", children: value })
     }
   );
+}, pureColor = 255, reduceColor = (baseColor, factor) => {
+  const r = (baseColor & 16711680) >> 16, g = (baseColor & 65280) >> 8, b = baseColor & 255;
+  return (Math.floor(r / factor) << 16) + (Math.floor(g / factor) << 8) + Math.floor(b / factor);
 }, colorMap = {
-  0: "#FFFFFF",
-  1: "#BBBBDD",
-  2: "#8888BB",
-  3: "#444499"
+  0: "#" + pureColor.toString(16),
+  1: "#" + (13421772 + reduceColor(pureColor, 15)).toString(16),
+  2: "#" + (10066329 + reduceColor(pureColor, 10)).toString(16),
+  3: "#" + (6710886 + reduceColor(pureColor, 5)).toString(16)
 }, getColor = (interestStrength) => interestStrength == null ? "#FFFFFF" : colorMap[interestStrength], App = () => {
   const [rows, setRows] = useState([
-    { id: crypto.randomUUID(), label: "Label 1" },
-    { id: crypto.randomUUID(), label: "Label 2" }
+    { id: "initial-label-1", label: "Label 1" },
+    { id: "initial-label-2", label: "Label 2" }
   ]), [columns, setColumns] = useState([
     { id: "2023", label: "2023" },
-    { id: "2024", label: "2024" }
-  ]), [rowDateProps, setRowDateProps] = useState([]), colorState = useMemo(() => {
+    { id: "2024", label: "2024" },
+    { id: "2025", label: "2025" }
+  ]), [rowDateProps, setRowDateProps] = useState([
+    { label: "initial-label-1", props: [{ year: 2025, isBold: !1, isItalic: !1 }] },
+    { label: "initial-label-2", props: [{ year: 2025, isBold: !1, isItalic: !1 }] }
+  ]), colorState = useMemo(() => {
     const newState = {};
     return rowDateProps.forEach((rowDateProp) => {
       rowDateProp.props.forEach((dateFragProp) => {
@@ -10803,12 +10811,25 @@ const DOMPurify = /* @__PURE__ */ getDefaultExportFromCjs(browserExports), frags
       });
     }), newState;
   }, [columns, rows, rowDateProps]), handleAddRow = useCallback(() => {
-    const newRow = {
-      id: crypto.randomUUID(),
+    const newRowId = crypto.randomUUID(), newRow = {
+      id: newRowId,
       label: "New Label"
     };
-    setRows((prevRows) => [...prevRows, newRow]);
-  }, []), handleRemoveRow = useCallback((rowId) => {
+    setRows((prevRows) => [...prevRows, newRow]), registerFrags(newRowId, [{ year: 2025, isBold: !1, isItalic: !1 }]);
+  }, [rows, rowDateProps]), handleTrimDates = useCallback(() => {
+    setColumns((prevColumns) => {
+      const minYear = rowDateProps.map(
+        (row) => row.props.map(
+          (dateFragProp) => dateFragProp.year
+        )
+      ).flat().reduce((x, y) => x < y ? x : y), maxYear = rowDateProps.map(
+        (row) => row.props.map(
+          (dateFragProp) => dateFragProp.year
+        )
+      ).flat().reduce((x, y) => x < y ? y : x);
+      return prevColumns.filter((col) => parseInt(col.id) >= minYear && parseInt(col.id) <= maxYear);
+    });
+  }, [columns]), handleRemoveRow = useCallback((rowId) => {
     setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
   }, []), handleUpdateRowLabel = useCallback((rowId, newLabel) => {
     console.log("saving label: " + newLabel), setRows((prevRows) => prevRows.map((row) => row.id === rowId ? { ...row, label: newLabel } : row));
@@ -10826,54 +10847,103 @@ const DOMPurify = /* @__PURE__ */ getDefaultExportFromCjs(browserExports), frags
     rowLabelFound || newRowDateProps.push({ label: rowLabel, props: newProps }), setRowDateProps(newRowDateProps);
   }, [rowDateProps]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "Text Interest Census" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "Interest Tracker" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "full-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "header" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", {}),
-        columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { transform: "rotate(-70deg)", width: "10px" }, children: col.id.substring(2, 4) }) }, col.id))
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { minWidth: "200px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleAddRow, children: "Add Row" }) }),
+        columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "year-header-cell", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { transform: "rotate(-70deg)", width: "10px", fontSize: "12px" }, children: col.id.substring(2, 4) }) }, col.id)),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleTrimDates, className: "trim-time-dates-button", children: "← Trim Dates" }) })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
-        rows.map((row) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { display: "flex" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              EditableLabel,
-              {
-                initialValue: row.label,
-                onSave: (newLabel) => handleUpdateRowLabel(row.id, newLabel)
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => handleRemoveRow(row.id),
-                "aria-label": `Remove row ${row.label}`,
-                className: "remove-row-btn",
-                children: "X"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "200px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            DateBlock,
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: rows.map((row) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "interest-row", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { display: "flex" }, className: "interest-label", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            EditableLabel,
             {
-              initialValue: "2025",
-              registerNewDates: (dateFragProps) => registerFrags(row.id, dateFragProps)
+              initialValue: row.label,
+              onSave: (newLabel) => handleUpdateRowLabel(row.id, newLabel)
             }
-          ) }) }),
-          columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "td",
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "5px" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
             {
-              style: {
-                width: "fit-content",
-                backgroundColor: getColor(colorState[`${row.id}_${col.id}`])
-              }
-            },
-            col.id
-          ))
-        ] }, row.id)),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleAddRow, children: "Add Row" }) }) })
-      ] })
+              onClick: () => handleRemoveRow(row.id),
+              "aria-label": `Remove row ${row.label}`,
+              className: "remove-row-btn",
+              children: "X"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          FusedDateSelector,
+          {
+            row,
+            columns,
+            registerFrags,
+            colorState,
+            initialValue: "2025"
+          }
+        )
+      ] }, row.id)) })
     ] })
+  ] });
+}, FusedDateSelector = ({ row, columns, registerFrags, colorState, initialValue }) => {
+  const [storedValue, setStoredValue] = useState(initialValue), [newValue, setNewValue] = useState(initialValue), handleCellClick = (colId) => {
+    const currentStrength = colorState[`${row.id}_${colId}`], year = parseInt(colId);
+    let allFrags = ((html) => {
+      const results = [];
+      let isBold = !1, isItalic = !1;
+      const regex = /(<b>)|(<\/b>)|(<i>)|(<\/i>)|(\d{4})(\-(\d{4}))?/g;
+      let match;
+      for (; (match = regex.exec(html)) !== null; )
+        if (match[1])
+          isBold = !0;
+        else if (match[2])
+          isBold = !1;
+        else if (match[3])
+          isItalic = !0;
+        else if (match[4])
+          isItalic = !1;
+        else if (match[5] && match[6]) {
+          const startYear = parseInt(match[5]), endYear = parseInt(match[7]);
+          for (let y = startYear; y <= endYear; y++)
+            results.push({ year: y, isBold, isItalic });
+        } else if (match[5]) {
+          const singleYear = parseInt(match[5]);
+          results.push({ year: singleYear, isBold, isItalic });
+        }
+      return results;
+    })(storedValue), nextState;
+    if (currentStrength === void 0 ? nextState = "light" : currentStrength === 1 ? nextState = "medium" : currentStrength === 2 ? nextState = "heavy" : nextState = "none", allFrags = allFrags.filter((frag) => frag.year !== year), nextState !== "none") {
+      const isBold = nextState === "heavy", isItalic = nextState === "light";
+      allFrags.push({ year, isBold, isItalic });
+    }
+    const updatedHtml = fragsToHtml(allFrags);
+    setStoredValue(updatedHtml), setNewValue(updatedHtml), registerFrags(row.id, allFrags);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "td",
+      {
+        style: {
+          width: "fit-content",
+          backgroundColor: getColor(colorState[`${row.id}_${col.id}`])
+        },
+        className: "interest-cell",
+        onClick: () => handleCellClick(col.id)
+      },
+      col.id
+    )),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "200px", whiteSpace: "nowrap" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      DateBlock,
+      {
+        registerNewDates: (dateFragProps) => registerFrags(row.id, dateFragProps),
+        storedValue,
+        setStoredValue,
+        newValue,
+        setNewValue
+      }
+    ) }) })
   ] });
 };
 clientExports.createRoot(document.getElementById("root")).render(
@@ -10912,7 +10982,7 @@ body {
   min-height: 100vh;
 }
 h1 {
-  font-size: 3.2em;
+  font-size: 2em;
   line-height: 1.1;
 }
 button {
@@ -10953,15 +11023,30 @@ button:focus-visible {
 }
 .remove-row-btn {
   padding: 2px 6px;
-  font-size: 12px;
-  width: 28px;
-  height: 24px;
+  font-size: 9px;
+  color: gray;
   line-height: 20px;
   border-radius: 4px;
   cursor: pointer;
 }
 .remove-row-btn:hover {
   filter: brightness(.95);
+  color: #000;
+}
+.trim-time-dates-button,
+button {
+  padding: 4px;
+}
+.interest-cell {
+  padding: 0;
+}
+.full-table {
+  border-spacing: 0px 1px;
+  background: silver;
+}
+tr {
+  background: #fff;
+  border-bottom: 3px solid black;
 }</style>
   </head>
   <body>
